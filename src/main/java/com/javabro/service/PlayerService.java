@@ -32,22 +32,28 @@ public class PlayerService {
     public Player addPlayer(Player player) {
         long nextVal = atomicLong.incrementAndGet();
         player.setId(nextVal);
+        player.getTeam().setId(nextVal);
         players.add(player);
         return player;
     }
 
     public Player updatePlayer(Player player, Long id) {
         Optional<Player> optionalPlayer = players.stream().filter(player1 -> player1.getId() == id).findFirst();
-        Player player2 = optionalPlayer.orElseThrow();
+        Player player2 = optionalPlayer.orElseThrow(() -> {
+            throw new RuntimeException("no player found with id " + id);
+        });
         players.remove(player2);
+        player.setId(id);
+        player.getTeam().setId(id);
         players.add(player);
         player.setId(id);
         return player;
     }
 
-    public void deletePlayer(Long id) {
+    public Player deletePlayer(Long id) {
         Optional<Player> optionalPlayer = players.stream().filter(player -> player.getId() == id).findFirst();
         Player player2 = optionalPlayer.orElseThrow();
         players.remove(player2);
+        return player2;
     }
 }
